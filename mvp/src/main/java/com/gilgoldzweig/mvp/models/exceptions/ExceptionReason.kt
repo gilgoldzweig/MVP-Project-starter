@@ -32,4 +32,4 @@ package com.gilgoldzweig.mvp.models.exceptions
  * @param extra if we want to provide some extra data to the view
  * @see [com.gilgoldzweig.mvp.BaseContract.Presenter]
  */
-open class ExceptionReason(extra: Any? = null)
+open class ExceptionReason (extra: Any? = null)

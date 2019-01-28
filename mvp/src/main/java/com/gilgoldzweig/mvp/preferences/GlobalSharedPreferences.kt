@@ -1,10 +1,10 @@
-package com.gilgoldzweig.core.preferences
+package com.gilgoldzweig.mvp.preferences
 
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import com.gilgoldzweig.core.preferences.GlobalSharedPreferences.apply
+import com.gilgoldzweig.mvp.preferences.GlobalSharedPreferences.apply
 
 /**
  * A way to access the same SharedPreferences file everywhere in the app without the need to provide [Context]

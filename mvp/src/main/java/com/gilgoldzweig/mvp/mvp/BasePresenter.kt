@@ -17,13 +17,14 @@ import kotlin.coroutines.CoroutineContext
 abstract class BasePresenter<V : BaseContract.View> :
         CoroutineScope, LifecycleObserver, BaseContract.Presenter<V> {
 
-    var job: Job = Job()
+
+    open var job: Job = Job()
 
     var lifecycle: Lifecycle? = null
 
     lateinit var view: V
 
-    var dispatchers: CoroutineDispatchers = CoroutineDispatchers()
+    open var dispatchers: CoroutineDispatchers = CoroutineDispatchers()
 
     override val coroutineContext: CoroutineContext
         get() = dispatchers.default + job

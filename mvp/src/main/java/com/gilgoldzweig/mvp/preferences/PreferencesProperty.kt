@@ -1,4 +1,4 @@
-package com.gilgoldzweig.core.preferences
+package com.gilgoldzweig.mvp.preferences
 
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
