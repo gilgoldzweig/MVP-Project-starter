@@ -13,6 +13,8 @@ import org.junit.Test
  */
 class GlobalSharedPreferencesTest {
 
+	private var propertyDelegation: String by preferences("", EXISTING_PROPERTY_DELEGATION_TEST_KEY)
+
 	/**
 	 * Our mocked SharedPreference
 	 */
@@ -314,6 +316,38 @@ class GlobalSharedPreferencesTest {
 			removeAndCommit(TEST_REMOVE_KEY)
 
 			assertFalse(contains(TEST_REMOVE_KEY))
+		}
+	}
+
+	/**
+	 * Testing that [PreferencesProperty.setValue] saves value
+	 */
+	@Test
+	fun testPropertyDelegationSet() {
+		propertyDelegation = PROPERTY_DELEGATION_TEST_VALUE
+
+		with(GlobalSharedPreferences) {
+
+			assertTrue(contains(EXISTING_PROPERTY_DELEGATION_TEST_KEY))
+
+
+			assertTrue(
+				get(EXISTING_PROPERTY_DELEGATION_TEST_KEY, NON_EXISTING_PROPERTY_DELEGATION_DEFAULT_VALUE) ==
+						PROPERTY_DELEGATION_TEST_VALUE
+			)
+		}
+	}
+
+	/**
+	 * Testing that [PreferencesProperty.setValue] saves value
+	 */
+	@Test
+	fun testPropertyDelegationGet() {
+
+		with(GlobalSharedPreferences) {
+			commit(EXISTING_PROPERTY_DELEGATION_TEST_KEY, PROPERTY_DELEGATION_TEST_VALUE)
+
+			assertTrue(propertyDelegation == PROPERTY_DELEGATION_TEST_VALUE)
 		}
 	}
 

@@ -3,30 +3,44 @@ package com.gilgoldzweig.mvp.preferences
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class PreferencesProperty<T : Any> internal constructor(private val defaultValue: T,
-                                                        private val key: String = "",
-                                                        private val background: Boolean = false):
-        ReadWriteProperty<Any, T> {
+/**
+ * Property delegation for [GlobalSharedPreferences]
+ */
+class PreferencesProperty<T : Any> internal constructor(
+	private val defaultValue: T,
+	private val key: String = "",
+	private val background: Boolean = false
+) : ReadWriteProperty<Any, T> {
 
-    private val pref = GlobalSharedPreferences
+	private val pref = GlobalSharedPreferences
 
-    override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
-        val prefsKey = if (key.isEmpty()) property.name else key
-        pref.set(prefsKey, value).commitOrApply()
-    }
+	/**
+	 * Every time we call set on our delegated property
+	 */
+	override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
+		val prefsKey = if (key.isEmpty()) property.name else key
 
-    override fun getValue(thisRef: Any, property: KProperty<*>) =
-            pref.get(if (key.isEmpty()) property.name else key, defaultValue)
+		if (background) {
+			pref.apply(prefsKey, value)
+		} else {
+			pref.commit(prefsKey, value)
+		}
+	}
 
-    private fun GlobalSharedPreferences.commitOrApply() {
-        if (background) {
-            apply()
-        } else {
-            commit()
-        }
-    }
+	/**
+	 * Every time we call get on our delegated property
+	 */
+	override fun getValue(thisRef: Any, property: KProperty<*>) =
+		pref.get(if (key.isEmpty()) property.name else key, defaultValue)
+
 }
-fun <T : Any> preferences(defaultValue: T,
-                          key: String = "",
-                          background: Boolean = false) =
-        PreferencesProperty(defaultValue, key, background)
+
+/**
+ * Extension function for PreferencesProperty
+ */
+fun <T : Any> preferences(
+	defaultValue: T,
+	key: String = "",
+	background: Boolean = false
+): PreferencesProperty<T> =
+	PreferencesProperty(defaultValue, key, background)

@@ -6,6 +6,11 @@ package com.gilgoldzweig.mvp.preferences
  * @see MockSharedPreference
  */
 
+const val EXISTING_PROPERTY_DELEGATION_TEST_KEY = "property_delegation_test_key"
+const val PROPERTY_DELEGATION_TEST_VALUE = "property_delegation_test_value"
+const val NON_EXISTING_PROPERTY_DELEGATION_TEST_KEY = "non_existing_property_delegation_test_key"
+const val NON_EXISTING_PROPERTY_DELEGATION_DEFAULT_VALUE = "non_existing_property_delegation_default_value"
+
 const val CONTAINS_TEST_KEY = "contains_test_key"
 const val CONTAINS_TEST_VALUE = "some value"
 
