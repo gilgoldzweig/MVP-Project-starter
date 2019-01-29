@@ -1,6 +1,9 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'jacoco'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.gilgoldzweig'
 
 android {
     compileSdkVersion 28
@@ -41,7 +44,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     testImplementation 'org.mockito:mockito-core:2.23.4'
 }
-
 
 jacoco {
     toolVersion = "0.7.9"

@@ -74,6 +74,7 @@ class Bundlify(var bundle: Bundle = Bundle()) {
 	 * @throws ClassCastException
 	 */
 	@Throws(ClassCastException::class)
+	@Suppress("UNCHECKED_CAST")
 	fun <T : Parcelable> String.getParcelableArray(): Array<T>? =
 			bundle.getParcelableArray(this) as? Array<T>
 
@@ -272,6 +273,7 @@ class Bundlify(var bundle: Bundle = Bundle()) {
 /**
  * DSL for creating [android.os.Bundle] using Bundlify
  */
+@Suppress("unused")
 inline fun bundle(bundle: Bundlify.() -> Unit) = Bundlify().apply(bundle).bundle
 
 /**
