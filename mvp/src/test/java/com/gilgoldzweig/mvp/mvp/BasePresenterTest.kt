@@ -3,8 +3,6 @@ package com.gilgoldzweig.mvp.mvp
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LifecycleRegistry
-import com.gilgoldzweig.mvp.mvp.test.BasePresenterTestImpl
-import com.gilgoldzweig.mvp.mvp.test.BasePresenterTestViewImpl
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -19,18 +17,19 @@ import org.mockito.junit.MockitoJUnitRunner
 class BasePresenterTest {
 
 	@Mock
-	private lateinit var baseView: BasePresenterTestViewImpl
+	private lateinit var baseView: BaseContract.View
+
+	private lateinit var basePresenter: BasePresenter<BaseContract.View>
 
 	@Mock
 	private lateinit var lifecycleOwner: LifecycleOwner
 
 	private lateinit var lifecycleRegistry: LifecycleRegistry
 
-	private lateinit var basePresenter: BasePresenterTestImpl
-
 	@Before
 	fun setUp() {
-		basePresenter = BasePresenterTestImpl()
+
+		basePresenter = object : BasePresenter<BaseContract.View>() {}
 
 		lifecycleRegistry = LifecycleRegistry(lifecycleOwner)
 

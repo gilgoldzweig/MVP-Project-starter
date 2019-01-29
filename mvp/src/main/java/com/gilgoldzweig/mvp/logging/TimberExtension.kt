@@ -10,46 +10,72 @@ private const val MAX_TAG_LENGTH = 23
 private const val CALL_STACK_INDEX = 4
 private val anonymousClassPattern = Pattern.compile("(\\$\\d+)+$")
 
+/**
+ * Calls [Timber.d] with a message based on the receiver
+ */
 @Suppress("unused")
 fun Any?.d(
 	prefix: String = "",
 	postfix: String = "",
 	separator: String = " "
 ): Unit =
-	Timber.tag(getTag()).d("$prefix$separator${this ?: "null"}$separator$postfix")
+	Timber.tag(getTag()).d(createMessage(prefix, postfix, separator))
 
+/**
+ * Calls [Timber.e] with a message based on the receiver
+ */
 @Suppress("unused")
 fun Any?.e(
 	prefix: String = "",
 	postfix: String = "",
 	separator: String = " "
 ): Unit =
-	Timber.tag(getTag()).e("$prefix$separator${this ?: "null"}$separator$postfix")
+	Timber.tag(getTag()).e(createMessage(prefix, postfix, separator))
 
+/**
+ * Calls [Timber.i] with a message based on the receiver
+ */
 @Suppress("unused")
 fun Any?.i(
 	prefix: String = "",
 	postfix: String = "",
 	separator: String = " "
-): Unit = Timber.tag(getTag()).i("$prefix$separator${this ?: "null"}$separator$postfix")
+): Unit = Timber.tag(getTag()).i(createMessage(prefix, postfix, separator))
 
+/**
+ * Calls [Timber.wtf] with a message based on the receiver
+ */
 @Suppress("unused")
 fun Any?.wtf(
 	prefix: String = "",
 	postfix: String = "",
 	separator: String = " "
-): Unit = Timber.tag(getTag()).wtf("$prefix$separator${this ?: "null"}$separator$postfix")
+) =
+	Timber.tag(getTag())
+		.wtf(createMessage(prefix, postfix, separator))
 
+/**
+ * Calls [Timber.w] with a message based on the receiver
+ */
 @Suppress("unused")
 fun Any?.w(
 	prefix: String = "",
 	postfix: String = "",
 	separator: String = " "
-): Unit = Timber.tag(getTag()).w("$prefix$separator${this ?: "null"}$separator$postfix")
+) = Timber.tag(getTag())
+	.w(createMessage(prefix, postfix, separator))
 
-@Suppress("unused")
-fun Event.event(): Unit = Timber.event(this)
 
+private fun Any?.createMessage(
+	prefix: String = "",
+	postfix: String = "",
+	separator: String = " "
+): String =
+	"$prefix$separator${this ?: "null"}$separator$postfix"
+
+/**
+ * logs a non fetal exception
+ */
 @Suppress("unused")
 fun Throwable.crash(message: String? = null) {
 	if (message == null) {
@@ -59,6 +85,15 @@ fun Throwable.crash(message: String? = null) {
 	}
 }
 
+/**
+ * logs an analytics event to Timber without extra parameters
+ */
+@Suppress("unused")
+fun Event.event(): Unit = Timber.event(this)
+
+/**
+ * logs an analytics event to Timber with extra parameters
+ */
 fun Event.event(vararg params: Pair<EventParameter, Any>) {
 	val bundlify = Bundlify()
 	params.forEach { bundlify.put(it.first, it.second) }
@@ -73,7 +108,7 @@ fun Event.event(vararg params: Pair<EventParameter, Any>) {
  *
  * Note: This will not be called if a [manual tag][.tag] was specified.
  */
-fun createStackElementTag(element: StackTraceElement): String {
+private fun createStackElementTag(element: StackTraceElement): String {
 	var tag = element.className
 	val m = anonymousClassPattern.matcher(tag)
 	if (m.find()) {
@@ -86,7 +121,10 @@ fun createStackElementTag(element: StackTraceElement): String {
 	} else tag.substring(0, MAX_TAG_LENGTH)
 }
 
-fun getTag(): String {
+/**
+ * Returns the tag for the place that called the function
+ */
+private fun getTag(): String {
 	val stackTrace = Throwable().stackTrace
 	if (stackTrace.size <= CALL_STACK_INDEX) {
 		if (stackTrace.isNotEmpty()) {

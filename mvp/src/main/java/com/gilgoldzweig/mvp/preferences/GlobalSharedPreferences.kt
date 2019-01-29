@@ -39,61 +39,111 @@ object GlobalSharedPreferences {
 	 *
 	 * @return instance of the GlobalSharedPreferences
 	 */
-	fun initialize(application: Application,
-	               name: String = "DefaultSharedPreferences"): GlobalSharedPreferences =
+	fun initialize(
+		application: Application,
+		name: String = "DefaultSharedPreferences"
+	): GlobalSharedPreferences =
 			initialize(application.getSharedPreferences(name, Context.MODE_PRIVATE))
 
-
+	/**
+	 * Returns all the values currently in the shared preferences
+	 */
 	fun getAll(): Map<String, *> = sharedPreferences.all
 
-	fun getInt(key: String, defaultValue: Int = -1) =
+	/**
+	 * Retrieve an [Int] value from the preferences.
+	 * based on the provided
+	 * @param key
+	 * @return the int associated with the key or the default value if no preference is found
+	 */
+	fun getInt(key: String, defaultValue: Int = -1): Int =
 			sharedPreferences.getInt(key, defaultValue)
 
-	fun getLong(key: String, defaultValue: Long = -1L) =
+	/**
+	 * Retrieve a [Long] value from the preferences.
+	 * based on the provided
+	 * @param key
+	 * @return the int associated with the key or the default value if no preference is found
+	 */
+	fun getLong(key: String, defaultValue: Long = -1L): Long =
 			sharedPreferences.getLong(key, defaultValue)
 
-	fun getFloat(key: String, defaultValue: Float = 0.0f) =
+	/**
+	 * Retrieve a [Float] value from the preferences.
+	 * based on the provided
+	 * @param key
+	 * @return the int associated with the key or the default value if no preference is found
+	 */
+	fun getFloat(key: String, defaultValue: Float = 0.0f): Float =
 			sharedPreferences.getFloat(key, defaultValue)
 
-	fun getBoolean(key: String, defaultValue: Boolean = false) =
+	/**
+	 * Retrieve an [Boolean] value from the preferences.
+	 * based on the provided
+	 * @param key
+	 * @return the int associated with the key or the default value if no preference is found
+	 */
+	fun getBoolean(key: String, defaultValue: Boolean = false): Boolean =
 			sharedPreferences.getBoolean(key, defaultValue)
 
-	fun getString(key: String, defaultValue: String = ""): String =
-			sharedPreferences.getString(key, defaultValue)!!
+	/**
+	 * Retrieve an [String] value from the preferences.
+	 * based on the provided
+	 * @param key
+	 * @return the int associated with the key or the default value if no preference is found
+	 */
+	fun getString(key: String, defaultValue: String = ""): String? =
+		sharedPreferences.getString(key, defaultValue)
 
+	/**
+	 * Retrieve an [Set<String>] value from the preferences.
+	 * based on the provided
+	 * @param key
+	 * @return the int associated with the key or the default value if no preference is found
+	 */
 	fun getStringSet(key: String, defaultValue: Set<String> = emptySet()): MutableSet<String>? =
-			sharedPreferences.getStringSet(key, defaultValue)
+		sharedPreferences.getStringSet(key, defaultValue)
 
+	/**
+	 * Retrieve a value from the preferences.
+	 * based on the provided
+	 * @param key
+	 * and cast it to the defaultValue type
+	 * @return the int associated with the key or the default value if no preference is found
+	 * @throws UnsupportedOperationException if the type of defaultValue is not a support type
+	 */
 	@Suppress("UNCHECKED_CAST")
 	@Throws(UnsupportedOperationException::class)
-	fun <T : Any> get(key: String, defaultValue: T) =
-			when (defaultValue) {
-				is String ->
-					getString(key, defaultValue) as T
+	fun <T : Any> get(key: String, defaultValue: T): T =
+		when (defaultValue) {
+			is String ->
+				getString(key, defaultValue) as T
 
-				is Int ->
-					getInt(key, defaultValue) as T
+			is Int ->
+				getInt(key, defaultValue) as T
 
-				is Long ->
-					getLong(key, defaultValue) as T
+			is Long ->
+				getLong(key, defaultValue) as T
 
-				is Boolean ->
-					getBoolean(key, defaultValue) as T
+			is Boolean ->
+				getBoolean(key, defaultValue) as T
 
-				is Float ->
-					getFloat(key, defaultValue) as T
+			is Float ->
+				getFloat(key, defaultValue) as T
 
-				is Set<*> ->
-					getStringSet(key, defaultValue as Set<String>) as T
+			is Set<*> ->
+				getStringSet(key, defaultValue as Set<String>) as T
 
-				else ->
-					throw UnsupportedOperationException("""
+			else ->
+				throw UnsupportedOperationException(
+					"""
                     Exception while performing get from shared preferences
                     key: $key
                     default value: $defaultValue
-                """.trimIndent())
+                """.trimIndent()
+				)
 
-			}
+		}
 
 
 	/**
@@ -196,16 +246,17 @@ object GlobalSharedPreferences {
 						try {
 							set(key, value as Set<String>)
 						} catch (e: ClassCastException) {
-							throw UnsupportedOperationException("""
+							throw UnsupportedOperationException(
+								"""
                     Exception while performing set on shared preferences
                     key: $key
                     value: $value
-                """.trimIndent())
+                """.trimIndent()
+							)
 						}
 
 				}
 			}
-
 
 	/**
 	 * Set a new value to the editor and calls [commit]
@@ -276,7 +327,6 @@ object GlobalSharedPreferences {
 	fun commit(key: String, value: Any): Boolean =
 			set(key, value).commit()
 
-
 	/**
 	 * Remove's the preference from the editor but and calls [commit]
 	 * @param key The name of the preference to remove.
@@ -346,7 +396,6 @@ object GlobalSharedPreferences {
 	 */
 	fun apply(key: String, value: Any) = set(key, value).apply()
 
-
 	/**
 	 * Remove's the preference from the editor and calls [apply]
 	 * @param key The name of the preference to remove.
@@ -357,5 +406,4 @@ object GlobalSharedPreferences {
 	 * Calls apply on the editor
 	 */
 	fun apply() = editor.apply()
-
 }

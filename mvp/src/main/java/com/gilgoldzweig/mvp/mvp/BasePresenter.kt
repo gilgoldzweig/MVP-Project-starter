@@ -5,7 +5,6 @@ import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
 import android.support.annotation.CallSuper
 import com.gilgoldzweig.mvp.models.threads.CoroutineDispatchers
-import com.gilgoldzweig.mvp.mvp.BaseContract
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -76,11 +75,15 @@ abstract class BasePresenter<V : BaseContract.View> :
         }
     }
 
-    @CallSuper
-    fun bindToLifecycle(lifecycle: Lifecycle) {
-        this.lifecycle = lifecycle
-        lifecycle.addObserver(this)
-    }
+	/**
+	 * Binds the class to a lifecycle
+	 * and calls [Lifecycle.addObserver] with this class as our observer
+	 */
+	@CallSuper
+	fun bindToLifecycle(lifecycle: Lifecycle) {
+		this.lifecycle = lifecycle
+		lifecycle.addObserver(this)
+	}
 
     /**
      * Stops all running jobs and remove the lifecycle observer if it exist
@@ -92,15 +95,27 @@ abstract class BasePresenter<V : BaseContract.View> :
         lifecycle = null
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    open fun onStart() = Unit
+	/**
+	 * If this class is bound to a lifecycle then we can listen to lifecycle events
+	 * There is no default implementation but inheritors can use this function easily
+	 */
+	@OnLifecycleEvent(Lifecycle.Event.ON_START)
+	open fun onStart() = Unit
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    open fun onStop() = Unit
+	/**
+	 * If this class is bound to a lifecycle then we can listen to lifecycle events
+	 * There is no default implementation but inheritors can use this function easily
+	 */
+	@OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+	open fun onStop() = Unit
 
-    @CallSuper
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    open fun onDestroy() {
-        detach()
-    }
+	/**
+	 * If this class is bound to a lifecycle then we can listen to the [Lifecycle.Event.ON_DESTROY]
+	 * and automatically detaching
+	 */
+	@CallSuper
+	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+	open fun onDestroy() {
+		detach()
+	}
 }

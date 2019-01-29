@@ -11,12 +11,17 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.mockito.Spy
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.IOException
 import java.util.concurrent.Executors
 
+/**
+ * Tests [ExamplePresenter]
+ */
 @RunWith(MockitoJUnitRunner::class)
 class ExamplePresenterTest {
 
@@ -27,6 +32,9 @@ class ExamplePresenterTest {
 	@Mock
 	private lateinit var view: ExampleContract.View
 
+	/**
+	 * Mocked exception so we can check that we can throw and see if it's chained properly
+	 */
 	@Mock
 	private lateinit var mockedException: IOException
 
@@ -44,16 +52,19 @@ class ExamplePresenterTest {
 		main = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 	)
 
-
+	/**
+	 * Attaching our mocked view to our presenter and we replace the original dispatchers with our custom one
+	 */
 	@Before
 	fun setUp() {
-		//Attaching our mocked view to our presenters
 		presenter.attach(view)
-
-		//Replacing the original dispatchers with our custom one
 		`when`(presenter.dispatchers).thenReturn(coroutineDispatchers)
 	}
 
+	/**
+	 * Testing both success and failure state of [ExamplePresenter.fetchProfileName]
+	 * we want the first call to return a successful value and the second one with an exception
+	 */
 	@Test
 	fun testFetchProfileName() {
 		//Because we are calling a suspend method we wrap it in a
@@ -79,7 +90,7 @@ class ExamplePresenterTest {
 	 * We want to verify that in case we receive a positive response
 	 * then onProfileNameReceived is called on our view
 	 */
-	fun verifySuccessfulFetchProfileName() {
+	private fun verifySuccessfulFetchProfileName() {
 		verify(view, times(1))
 			.onProfileNameReceived("Gil Goldzweig")
 
@@ -89,11 +100,14 @@ class ExamplePresenterTest {
 	 * We want to verify that in case we receive a failure response
 	 * then onProfileNameRequestFailed is called on our view
 	 */
-	fun verifyFailureFetchProfileName() {
+	private fun verifyFailureFetchProfileName() {
 		verify(view, times(1))
 			.onProfileNameRequestFailed(mockedException)
 	}
 
+	/**
+	 * We reset our mocked views
+	 */
 	@After
 	fun tearDown() {
 		Mockito.reset(view, mockedException, presenter)
