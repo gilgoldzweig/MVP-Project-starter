@@ -17,10 +17,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import kotlin.Suppress;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -29,12 +30,13 @@ import static java.util.Collections.unmodifiableList;
  *
  * An edited script of Jake Wharton timber that is a bit more flexible and supports analytic events
  */
+@Suppress(names = {"unused", "UNCHECKED_CAST"})
 public final class Timber {
     public static final int EVENT_LOG_PROPERTY = 31;
     private static final Tree[] TREE_ARRAY_EMPTY = new Tree[0];
     // Both fields guarded by 'FOREST'.
     private static final Set<Tree> FOREST = new HashSet<>();
-    static volatile Tree[] forestAsArray = TREE_ARRAY_EMPTY;
+    private static volatile Tree[] forestAsArray = TREE_ARRAY_EMPTY;
 
     /**
      * A {@link Tree} that delegates to all planted trees in the {@linkplain #FOREST forest}.
@@ -589,6 +591,7 @@ public final class Timber {
     /**
      * A facade for handling logging calls. Install instances via {@link #plant Timber.plant()}.
      */
+    @Suppress(names = {"unused", "UNCHECKED_CAST"})
     public static abstract class Tree {
         final ThreadLocal<String> explicitTag = new ThreadLocal<>();
 
@@ -775,20 +778,10 @@ public final class Timber {
         }
 
         /**
-         * Return whether a message at {@code priority} should be logged.
-         *
-         * @deprecated use {@link #isLoggable(String, int)} instead.
-         */
-        @Deprecated
-        protected boolean isLoggable(int priority) {
-            return true;
-        }
-
-        /**
          * Return whether a message at {@code priority} anyOf {@code tag} should be logged.
          */
         protected boolean isLoggable(String tag, int priority) {
-            return isLoggable(priority);
+            return true;
         }
 
         private void prepareLog(int priority, Throwable t, String message, Object... args) {
@@ -864,6 +857,7 @@ public final class Timber {
     /**
      * A {@link Tree Tree} for debug builds. Automatically infers the tag from the calling class.
      */
+    @Suppress(names = {"unused", "UNCHECKED_CAST"})
     public static class DebugTree extends Tree {
         private static final int MAX_LOG_LENGTH = 4000;
         private static final int MAX_TAG_LENGTH = 23;

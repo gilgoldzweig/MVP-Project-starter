@@ -1,0 +1,4 @@
+#!/bin/bash
+
+before_install:
+- curl https://gist.github.com/gilgoldzweig/1ab205447582fb7c2d0ccab00a662506 | sh
