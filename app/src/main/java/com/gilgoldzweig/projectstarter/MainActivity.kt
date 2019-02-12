@@ -1,5 +1,7 @@
 package com.gilgoldzweig.projectstarter
 
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.gilgoldzweig.projectstarter.exmaple.ExampleContract
@@ -12,6 +14,7 @@ class MainActivity : AppCompatActivity(), ExampleContract.View {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
+		MutableLiveData<String>().observe(this, Observer { })
 	}
 
 	/**

@@ -13,17 +13,16 @@ import kotlin.coroutines.CoroutineContext
 /**
  * A base presenter class that include some functionality and helping
  */
-abstract class BasePresenter<V : BaseContract.View> :
+abstract class BasePresenter<V : BaseContract.View>(
+	open var job: Job = Job(),
+	open var dispatchers: CoroutineDispatchers = CoroutineDispatchers()
+) :
         CoroutineScope, LifecycleObserver, BaseContract.Presenter<V> {
 
-
-    open var job: Job = Job()
 
     var lifecycle: Lifecycle? = null
 
     lateinit var view: V
-
-    open var dispatchers: CoroutineDispatchers = CoroutineDispatchers()
 
     override val coroutineContext: CoroutineContext
         get() = dispatchers.default + job
@@ -46,10 +45,6 @@ abstract class BasePresenter<V : BaseContract.View> :
      * @param lifecycle a lifecycle we can bind
      */
     override fun attach(view: V, lifecycle: Lifecycle?) {
-        if (job.isCancelled) {
-            job = Job()
-        }
-
         this.view = view
 
         if (lifecycle != null) {
