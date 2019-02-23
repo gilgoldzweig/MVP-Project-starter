@@ -3,6 +3,10 @@ package com.gilgoldzweig.mvp.mvp
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LifecycleRegistry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -33,15 +37,19 @@ class BasePresenterTest {
 
 	private lateinit var lifecycleRegistry: LifecycleRegistry
 
+	private val mainThreadSurrogate: ExecutorCoroutineDispatcher = newSingleThreadContext("UI thread")
+
 
 	@Before
 	fun setUp() {
+		Dispatchers.setMain(mainThreadSurrogate)
 
 		lifecycleRegistry = LifecycleRegistry(lifecycleOwner)
 
 		lifecycleRegistry.markState(Lifecycle.State.CREATED)
 
 		basePresenter.attach(baseView, null)
+
 	}
 
 	@Test
@@ -80,6 +88,22 @@ class BasePresenterTest {
 			verify(baseView, never()).performOnUiCallTest()
 		}
 	}
+
+	@Test
+	fun testPerformOnUiThreadRetryActionsAddedWhenLifecycleStateFail() {
+		lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+		basePresenter.bindToLifecycle(lifecycleRegistry)
+		basePresenter.performOnUi {
+			performOnUiCallTest()
+		}
+		assertTrue(basePresenter.actionsWaitingForUIExecution.isNotEmpty())
+
+		lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+		basePresenter.executeQueuedUiActions()
+		assertTrue(basePresenter.actionsWaitingForUIExecution.isEmpty())
+		verify(baseView, times(1)).performOnUiCallTest()
+	}
+
 
 	@Test
 	fun testLifecycleDetachCalled() {

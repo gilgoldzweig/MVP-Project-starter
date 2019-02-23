@@ -1,7 +1,9 @@
 package com.gilgoldzweig.mvp.mvp
 
 import com.gilgoldzweig.mvp.models.threads.CoroutineDispatchers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
 import java.util.concurrent.Executors
 
 /**
@@ -27,10 +29,8 @@ interface BaseContractUnderTest {
  */
 open class BasePresenterUnderTest : BasePresenter<BaseContractUnderTest.View>(),
                                     BaseContractUnderTest.Presenter {
-	/**
-	 * We replace the original CoroutineDispatchers with one that don't actually use the main thread
-	 */
-	override var dispatchers = CoroutineDispatchers(
-		main = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-	)
+
+	fun tearDown() {
+		Dispatchers.resetMain()
+	}
 }

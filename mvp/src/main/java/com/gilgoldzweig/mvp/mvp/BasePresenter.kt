@@ -8,6 +8,10 @@ import com.gilgoldzweig.mvp.models.threads.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import java.util.LinkedList
+import java.util.Queue
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -15,14 +19,16 @@ import kotlin.coroutines.CoroutineContext
  */
 abstract class BasePresenter<V : BaseContract.View>(
 	open var job: Job = Job(),
-	open var dispatchers: CoroutineDispatchers = CoroutineDispatchers()
-) :
+	open var dispatchers: CoroutineDispatchers = CoroutineDispatchers()) :
         CoroutineScope, LifecycleObserver, BaseContract.Presenter<V> {
-
 
     var lifecycle: Lifecycle? = null
 
+	var autoExecuteUiActions: Boolean = true
+
     lateinit var view: V
+
+	val actionsWaitingForUIExecution: Queue<V.() -> Unit> = LinkedList()
 
     override val coroutineContext: CoroutineContext
         get() = dispatchers.default + job
@@ -56,19 +62,49 @@ abstract class BasePresenter<V : BaseContract.View>(
     /**
      * Perform an action of the View on the ui context
      *
-     * If a lifecycle is bound then only isAtLeast([Lifecycle.State.STARTED]) and
+     * If a lifecycle is bound then only if it isAtLeast([Lifecycle.State.RESUMED]) and
      * we verify that the job is not cancelled
+     *
+     * @param addToRetryQueue In case the function is called when the provided lifecycle is not available to
+     * receive the action for example [Lifecycle.State.DESTROYED]
+     * the [action] will be added to a retry queue [actionsWaitingForUIExecution] and we be executed when
+     * [executeQueuedUiActions] is called
+     *
      * @see [Lifecycle.getCurrentState]
      */
-    fun performOnUi(action: V.() -> Unit) {
-        if (!job.isCancelled &&
-            lifecycle?.currentState?.isAtLeast(Lifecycle.State.STARTED) != false) {
-
-            launch(uiContext) {
-                view.action()
-            }
+    fun performOnUi(addToRetryQueue: Boolean = true, action: V.() -> Unit) {
+        if (!job.isCancelled) {
+	        if (lifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) != false) {
+		        launch(uiContext) {
+			        view.action()
+		        }
+	        } else {
+		        if (addToRetryQueue) {
+			        actionsWaitingForUIExecution.offer(action)
+		        }
+	        }
         }
     }
+
+	/**
+	 * Performs all actions in [actionsWaitingForUIExecution]
+	 * This function should be called when the [job] is alive and when the ui allows executing actions
+	 *
+	 * The function does not check for the current lifecycle state it's the caller duty to verify that
+	 *
+	 * @see performOnUi
+	 */
+	fun executeQueuedUiActions() {
+		if (job.isActive) {
+			runBlocking(uiContext) {
+				var action = actionsWaitingForUIExecution.poll()
+				while (action != null) {
+					action.invoke(view)
+					action = actionsWaitingForUIExecution.poll()
+				}
+			}
+		}
+	}
 
 	/**
 	 * Binds the class to a lifecycle
@@ -86,6 +122,7 @@ abstract class BasePresenter<V : BaseContract.View>(
     @CallSuper
     override fun detach() {
         job.cancel()
+	    actionsWaitingForUIExecution.clear()
         lifecycle?.removeObserver(this)
         lifecycle = null
     }
