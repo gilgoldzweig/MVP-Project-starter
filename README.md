@@ -1,5 +1,5 @@
-# MVP
-![](https://jitpack.io/v/gilgoldzweig/MVP.svg)
+# MVP - Project starter
+![Jitpack versiob](https://jitpack.io/v/gilgoldzweig/MVP.svg)
 ![Codacy Badge](https://api.codacy.com/project/badge/Grade/e3da2babcb5046bebe7c9cf32138d8ce)
 ![Lincence](https://img.shields.io/github/license/gilgoldzweig/MVP.svg)
 ![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)
