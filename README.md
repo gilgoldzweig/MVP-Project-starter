@@ -4,6 +4,7 @@
 ![Lincence](https://img.shields.io/github/license/gilgoldzweig/MVP.svg)
 ![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)
 
+A suite of classes for implementing a testable MVP design pattern with kotlin coroutines
 # Implement in your project
 
 ## Using gradle
@@ -16,13 +17,23 @@
       }
       
 ### Usage
-Coming soon
+This library contains 3 main utilities 
+
+1. Base MVP classes as described in the article plus a Coroutines BasePresenter class
+2. Custom version of Timber to supoort logging any type of object and analytic events/non fatel exception
+3. A system wide SharedPreferences 
+
+For now Look at the sample for some usage, Real documentation coming soon
 
 ###
-This library is an implementation of [How to write a testable MVP in kotlin](https://medium.com/@gilgoldzweig/how-to-write-a-testable-mvp-in-kotlin-b099ab46a3df)
+This library is an implementation of [How to make MVP testable](https://medium.com/@gilgoldzweig/how-to-write-a-testable-mvp-in-kotlin-b099ab46a3df) with all the base classes I normaly use
 
 ### Contributing
 If you want to contribute to this project check if there are any open issues or just send a pull request and I'll do my best to include it
+
+Before submitting a pull request, make sure you follow the code style and documentation.
+
+Pull requests without tests will be ignored.
 
 
 ### License
