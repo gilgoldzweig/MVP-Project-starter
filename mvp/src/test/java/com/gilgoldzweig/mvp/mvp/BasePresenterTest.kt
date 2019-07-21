@@ -6,6 +6,8 @@ import android.arch.lifecycle.LifecycleRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertFalse
@@ -26,98 +28,142 @@ import org.mockito.junit.MockitoJUnitRunner
 @RunWith(MockitoJUnitRunner::class)
 class BasePresenterTest {
 
-	@Mock
-	private lateinit var baseView: BaseContractUnderTest.View
+    @Mock
+    private lateinit var baseView: BaseContractUnderTest.View
 
-	@Spy
-	private var basePresenter: BasePresenter<BaseContractUnderTest.View> = BasePresenterUnderTest()
+    @Spy
+    private var basePresenter: BasePresenter<BaseContractUnderTest.View> = BasePresenterUnderTest()
 
-	@Mock
-	private lateinit var lifecycleOwner: LifecycleOwner
+    @Mock
+    private lateinit var lifecycleOwner: LifecycleOwner
 
-	private lateinit var lifecycleRegistry: LifecycleRegistry
+    private lateinit var lifecycleRegistry: LifecycleRegistry
 
-	private val mainThreadSurrogate: ExecutorCoroutineDispatcher = newSingleThreadContext("UI thread")
+    private val mainThreadSurrogate: ExecutorCoroutineDispatcher =
+        newSingleThreadContext("UI thread")
 
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(mainThreadSurrogate)
 
-	@Before
-	fun setUp() {
-		Dispatchers.setMain(mainThreadSurrogate)
+        lifecycleRegistry = LifecycleRegistry(lifecycleOwner)
 
-		lifecycleRegistry = LifecycleRegistry(lifecycleOwner)
+        lifecycleRegistry.markState(Lifecycle.State.CREATED)
 
-		lifecycleRegistry.markState(Lifecycle.State.CREATED)
+        basePresenter.attach(baseView, null)
+    }
 
-		basePresenter.attach(baseView, null)
+    @Test
+    fun testDetach() {
 
-	}
+        assertFalse(basePresenter.job.isCancelled)
 
-	@Test
-	fun testDetach() {
+        basePresenter.detach()
 
-		assertFalse(basePresenter.job.isCancelled)
+        assertTrue(basePresenter.job.isCancelled)
+    }
 
-		basePresenter.detach()
+    @Test
+    fun testLifecycleBind() {
+        basePresenter.bindToLifecycle(lifecycleRegistry)
 
-		assertTrue(basePresenter.job.isCancelled)
-	}
+        assertNotNull(basePresenter.lifecycle)
 
-	@Test
-	fun testLifecycleBind() {
-		basePresenter.bindToLifecycle(lifecycleRegistry)
+        assert(lifecycleRegistry.observerCount == 1)
+    }
 
-		assertNotNull(basePresenter.lifecycle)
+    @Test
+    fun testPerformOnUiThreadCallAction() {
+        basePresenter.performOnUi {
+            performOnUiCallTest()
+            verify(baseView, times(1)).performOnUiCallTest()
+        }
+    }
 
-		assert(lifecycleRegistry.observerCount == 1)
-	}
+    @Test
+    fun testPerformOnUiThreadLifecycleStateFail() {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        basePresenter.bindToLifecycle(lifecycleRegistry)
+        basePresenter.performOnUi {
+            performOnUiCallTest()
+            verify(baseView, never()).performOnUiCallTest()
+        }
+    }
 
-	@Test
-	fun testPerformOnUiThreadCallAction() {
-		basePresenter.performOnUi {
-			performOnUiCallTest()
-			verify(baseView, times(1)).performOnUiCallTest()
-		}
-	}
+    @Test
+    fun testPerformOnUiThreadRetryActionsAddedWhenLifecycleStateFail() {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        basePresenter.bindToLifecycle(lifecycleRegistry)
+        basePresenter.performOnUi {
+            performOnUiCallTest()
+        }
+        assertTrue(basePresenter.actionsWaitingForUIExecution.isNotEmpty())
 
-	@Test
-	fun testPerformOnUiThreadLifecycleStateFail() {
-		lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-		basePresenter.bindToLifecycle(lifecycleRegistry)
-		basePresenter.performOnUi {
-			performOnUiCallTest()
-			verify(baseView, never()).performOnUiCallTest()
-		}
-	}
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        runBlocking {
+            basePresenter.executeQueuedUiActions()
+        }
+        assertTrue(basePresenter.actionsWaitingForUIExecution.isEmpty())
+        verify(baseView, times(1)).performOnUiCallTest()
+    }
 
-	@Test
-	fun testPerformOnUiThreadRetryActionsAddedWhenLifecycleStateFail() {
-		lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-		basePresenter.bindToLifecycle(lifecycleRegistry)
-		basePresenter.performOnUi {
-			performOnUiCallTest()
-		}
-		assertTrue(basePresenter.actionsWaitingForUIExecution.isNotEmpty())
+    @Test
+    fun testExecuteOnUiThreadCallAction() {
+        runBlocking {
+            basePresenter.executeOnUi {
+                performOnUiCallTest()
+            }
+            verify(baseView, times(1)).performOnUiCallTest()
+        }
+    }
 
-		lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-		basePresenter.executeQueuedUiActions()
-		assertTrue(basePresenter.actionsWaitingForUIExecution.isEmpty())
-		verify(baseView, times(1)).performOnUiCallTest()
-	}
+    @Test
+    fun testExecuteOnUiThreadLifecycleStateFail() {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        basePresenter.bindToLifecycle(lifecycleRegistry)
+        runBlocking {
+            basePresenter.executeOnUi {
+                performOnUiCallTest()
+            }
+            verify(baseView, never()).performOnUiCallTest()
+        }
+    }
 
+    @Test
+    fun testExecuteOnUiThreadRetryActionsAddedWhenLifecycleStateFail() {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        basePresenter.bindToLifecycle(lifecycleRegistry)
+        runBlocking {
+            repeat(3) {
+                basePresenter.executeOnUi {
+                    performOnUiCallTest()
+                }
+            }
+        }
+        assertTrue(basePresenter.actionsWaitingForUIExecution.isNotEmpty())
 
-	@Test
-	fun testLifecycleDetachCalled() {
-		basePresenter.bindToLifecycle(lifecycleRegistry)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        runBlocking {
+            basePresenter.executeQueuedUiActions()
+        }
+        assertTrue(basePresenter.actionsWaitingForUIExecution.isEmpty())
+        verify(baseView, times(3)).performOnUiCallTest()
+    }
 
-		lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    @Test
+    fun testLifecycleDetachCalled() {
+        basePresenter.bindToLifecycle(lifecycleRegistry)
 
-		assert(lifecycleRegistry.observerCount == 0)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 
-		assertNull(basePresenter.lifecycle)
-	}
+        assert(lifecycleRegistry.observerCount == 0)
 
-	@After
-	fun tearDown() {
-		reset(basePresenter, baseView, lifecycleOwner)
-	}
+        assertNull(basePresenter.lifecycle)
+    }
+
+    @After
+    fun tearDown() {
+        reset(basePresenter, baseView, lifecycleOwner)
+        Dispatchers.resetMain()
+    }
 }

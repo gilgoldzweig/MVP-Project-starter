@@ -28,6 +28,16 @@ For now Look at the sample for some usage, Real documentation coming soon
 ###
 This library is an implementation of [How to make MVP testable](https://medium.com/@gilgoldzweig/how-to-write-a-testable-mvp-in-kotlin-b099ab46a3df) with all the base classes I normaly use
 
+
+### Changelog
+
+#### Version 1.0.3
+- Added detekt code analsys
+##### BasePresenter
+-  defaultContext changed to `CoroutineDispatchers.Main`
+-  
+
+
 ### Contributing
 If you want to contribute to this project check if there are any open issues or just send a pull request and I'll do my best to include it
 
