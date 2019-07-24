@@ -9,14 +9,8 @@ import kotlin.reflect.KProperty
 class PreferencesProperty<T : Any> internal constructor(
     private val key: String = "",
     private val defaultValue: T,
-    private val background: Boolean = false,
-    private val localValue: Boolean = false
+    private val background: Boolean = false
 ) : ReadWriteProperty<Any, T> {
-
-    private val pref = GlobalSharedPreferences
-
-
-    private var lastCommitedValue: T? = null
 
     /**
      * Every time we call set on our delegated property
@@ -24,21 +18,23 @@ class PreferencesProperty<T : Any> internal constructor(
     override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
         val prefsKey = if (key.isEmpty()) property.name else key
 
-        pref.Editor.set(prefsKey, value)
+        with(GlobalSharedPreferences.Editor) {
 
-        if (background) {
-            GlobalSharedPreferences.Editor.apply()
-        } else {
-            GlobalSharedPreferences.Editor.commit()
+            set(prefsKey, value)
+
+            if (background) {
+                apply()
+            } else {
+                commit()
+            }
         }
     }
 
     /**
      * Every time we call get on our delegated property
      */
-    override fun getValue(thisRef: Any, property: KProperty<*>) =
-        pref.get(if (key.isEmpty()) property.name else key, defaultValue)
-
+    override fun getValue(thisRef: Any, property: KProperty<*>): T =
+        GlobalSharedPreferences.get(if (key.isEmpty()) property.name else key, defaultValue)
 }
 
 /**

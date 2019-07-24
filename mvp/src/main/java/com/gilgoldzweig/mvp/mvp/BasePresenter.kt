@@ -38,7 +38,6 @@ abstract class BasePresenter<V : BaseContract.View>(
     val databaseContext: CoroutineContext
         get() = job + dispatchers.database
 
-
     /**
      * attach the view to the presenter
      * creates a new job if the old one was cancelled
@@ -54,7 +53,6 @@ abstract class BasePresenter<V : BaseContract.View>(
         }
     }
 
-
     /**
      * Launches an action of the View to the ui context
      *
@@ -65,6 +63,9 @@ abstract class BasePresenter<V : BaseContract.View>(
      * receive the action for example [Lifecycle.State.DESTROYED]
      * the [action] will be added to a retry queue [actionsWaitingForUIExecution] and we be executed when
      * [executeQueuedUiActions] is called
+     *
+     * If your'e launching this inside launch function with the default context it is better
+     * to use [executeOnUi]
      *
      * @see [Lifecycle.getCurrentState]
      */

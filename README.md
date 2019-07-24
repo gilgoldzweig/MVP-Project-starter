@@ -20,22 +20,13 @@ A suite of classes for implementing a testable MVP design pattern with kotlin co
 This library contains 3 main utilities 
 
 1. Base MVP classes as described in the article plus a Coroutines BasePresenter class
-2. Custom version of Timber to supoort logging any type of object and analytic events/non fatel exception
+2. Custom version of Timber to support logging any type of object and analytic events/non fatal exception
 3. A system wide SharedPreferences 
 
 For now Look at the sample for some usage, Real documentation coming soon
 
 ###
 This library is an implementation of [How to make MVP testable](https://medium.com/@gilgoldzweig/how-to-write-a-testable-mvp-in-kotlin-b099ab46a3df) with all the base classes I normaly use
-
-
-### Changelog
-
-#### Version 1.0.3
-- Added detekt code analsys
-##### BasePresenter
--  defaultContext changed to `CoroutineDispatchers.Main`
--  
 
 
 ### Contributing
@@ -61,3 +52,13 @@ Pull requests without tests will be ignored.
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+   
+   
+   
+### Changelog
+
+#### Version 1.0.3
+- Added detekt code analysis
+##### BasePresenter
+-  defaultContext changed to `CoroutineDispatchers.Main`
+-  added `executeOnUi` that uses `withContext` instead of `launch` for doing things on ui
