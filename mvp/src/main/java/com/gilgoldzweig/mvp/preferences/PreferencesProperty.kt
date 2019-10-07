@@ -40,9 +40,24 @@ class PreferencesProperty<T : Any> internal constructor(
 /**
  * Extension function for PreferencesProperty
  */
-fun <T : Any> preferences(
+fun <T : Any> keyPreference(
     key: String = "",
     defaultValue: T,
+    background: Boolean = false
+): PreferencesProperty<T> =
+    PreferencesProperty(key, defaultValue, background)
+
+
+/**
+ *
+ */
+@Deprecated(
+    "Order changed, between key and defaultValue, may cause breaks",
+    ReplaceWith("keyPreference", "com.gilgoldzweig.mvp.preferences")
+)
+fun <T : Any> preferences(
+    defaultValue: T,
+    key: String = "",
     background: Boolean = false
 ): PreferencesProperty<T> =
     PreferencesProperty(key, defaultValue, background)

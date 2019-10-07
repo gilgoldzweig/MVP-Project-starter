@@ -288,8 +288,7 @@ object GlobalSharedPreferences {
          * @return Returns true if the new values were successfully written to persistent storage.
          * to the [SharedPreferences]
          */
-        fun commit(key: String, value: Float): Boolean =
-            set(key, value).commit()
+        fun commit(key: String, value: Float): Boolean = set(key, value).commit()
 
         /**
          * Set a new value to the editor and calls [commit]

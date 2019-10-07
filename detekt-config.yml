@@ -212,7 +212,7 @@ formatting:
   Filename:
     active: true
   FinalNewline:
-    active: true
+    active: false
     autoCorrect: true
   ImportOrdering:
     active: false
@@ -494,6 +494,7 @@ style:
     acceptableDecimalLength: 5
   UnnecessaryAbstractClass:
     active: false
+    excludeAnnotatedClasses: "dagger.Module"
   UnnecessaryApply:
     active: false
   UnnecessaryInheritance:
@@ -518,3 +519,6 @@ style:
     active: false
   VarCouldBeVal:
     active: true
+  WildcardImport:
+    active: false
+    excludeImports: 'java.util.*,kotlinx.android.synthetic.*'
