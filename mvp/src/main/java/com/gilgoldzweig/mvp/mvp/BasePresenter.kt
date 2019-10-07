@@ -149,6 +149,7 @@ abstract class BasePresenter<V : BaseContract.View>(
     @CallSuper
     override fun detach() {
         job.cancel()
+        view = null
         actionsWaitingForUIExecution.clear()
         lifecycle?.removeObserver(this)
         lifecycle = null
