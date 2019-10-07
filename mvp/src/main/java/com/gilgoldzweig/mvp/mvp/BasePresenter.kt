@@ -5,9 +5,11 @@ import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
 import android.support.annotation.CallSuper
 import com.gilgoldzweig.mvp.models.threads.CoroutineDispatchers
-import kotlinx.coroutines.*
-import java.util.LinkedList
-import java.util.Queue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -22,7 +24,7 @@ abstract class BasePresenter<V : BaseContract.View>(
 
     var autoExecuteUiActions: Boolean = true
 
-    lateinit var view: V
+    var view: V? = null
 
     val actionsWaitingForUIExecution: Queue<V.() -> Unit> = LinkedList()
 
@@ -73,7 +75,7 @@ abstract class BasePresenter<V : BaseContract.View>(
         if (!job.isCancelled) {
             if (lifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) != false) {
                 launch(uiContext) {
-                    view.action()
+                    view?.let(action)
                 }
             } else {
                 if (addToRetryQueue) {
@@ -100,7 +102,7 @@ abstract class BasePresenter<V : BaseContract.View>(
         if (!job.isCancelled) {
             if (lifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) != false) {
                 withContext(uiContext) {
-                    view.action()
+                    view?.let(action)
                 }
             } else {
                 if (addToRetryQueue) {
@@ -121,12 +123,12 @@ abstract class BasePresenter<V : BaseContract.View>(
      */
     suspend fun executeQueuedUiActions() {
         if (job.isActive) {
-            withContext(uiContext) {
-                var action = actionsWaitingForUIExecution.poll()
-                while (action != null) {
-                    action.invoke(view)
-                    action = actionsWaitingForUIExecution.poll()
+            var action = actionsWaitingForUIExecution.poll()
+            while (action != null) {
+                withContext(uiContext) {
+                    view?.let(action)
                 }
+                action = actionsWaitingForUIExecution.poll()
             }
         }
     }
