@@ -152,7 +152,7 @@ object GlobalSharedPreferences {
     operator fun contains(key: String): Boolean = sharedPreferences.contains(key)
 
     @Suppress("unused")
-    internal object Editor {
+    object Editor {
 
         /**
          * Put's a new value to the editor but does not perform commit/apply on the editor
@@ -216,7 +216,6 @@ object GlobalSharedPreferences {
          * @throws ClassCastException if value is a set not of strings
          */
         @Suppress("UNCHECKED_CAST")
-        @Throws(UnsupportedOperationException::class)
         fun <T : Any> set(key: String, value: T): Editor =
             also {
                 when (value) {
@@ -231,17 +230,7 @@ object GlobalSharedPreferences {
                     is Float ->
                         set(key, value)
                     is Set<*> ->
-                        try {
-                            set(key, value as Set<String>)
-                        } catch (e: ClassCastException) {
-                            throw UnsupportedOperationException(
-                                """
-                    Exception while performing set on shared preferences
-                    key: $key
-                    value: $value
-                """.trimIndent()
-                            )
-                        }
+                        set(key, value as Set<String>)
                 }
             }
 
