@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2020-01-27
+
+### Fix
+
+  - Old version of GlobalSharedPreferences was added
+
 
 ## [1.2.0] - 2020-01-27
 

@@ -2,9 +2,7 @@ package com.gilgoldzweig.mvp.preferences
 
 import android.content.SharedPreferences
 import org.junit.After
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
@@ -13,7 +11,7 @@ import org.junit.Test
  */
 class GlobalSharedPreferencesTest {
 
-	private var propertyDelegation: String by preferences("", EXISTING_PROPERTY_DELEGATION_TEST_KEY)
+	private var propertyDelegation: String by keyPreference(EXISTING_PROPERTY_DELEGATION_TEST_KEY, "")
 
 	/**
 	 * Our mocked SharedPreference
@@ -49,7 +47,7 @@ class GlobalSharedPreferencesTest {
 	 */
 	@Test
 	fun testPutStringWithoutCommit() {
-		GlobalSharedPreferences.set(EXISTING_STRING_KEY, EXISTING_STRING_VALUE)
+		GlobalSharedPreferences.Editor.set(EXISTING_STRING_KEY, EXISTING_STRING_VALUE)
 
 		assertTrue(sharedPreferences.uncommittedPreferenceMap.contains(EXISTING_STRING_KEY))
 	}
@@ -60,7 +58,7 @@ class GlobalSharedPreferencesTest {
 	 */
 	@Test
 	fun testPutIntWithoutCommit() {
-		GlobalSharedPreferences.set(EXISTING_INT_KEY, EXISTING_INT_VALUE)
+		GlobalSharedPreferences.Editor.set(EXISTING_INT_KEY, EXISTING_INT_VALUE)
 
 		assertTrue(sharedPreferences.uncommittedPreferenceMap.contains(EXISTING_INT_KEY))
 	}
@@ -71,7 +69,7 @@ class GlobalSharedPreferencesTest {
 	 */
 	@Test
 	fun testPutLongWithoutCommit() {
-		GlobalSharedPreferences.set(EXISTING_LONG_KEY, EXISTING_LONG_VALUE)
+		GlobalSharedPreferences.Editor.set(EXISTING_LONG_KEY, EXISTING_LONG_VALUE)
 
 		assertTrue(sharedPreferences.uncommittedPreferenceMap.contains(EXISTING_LONG_KEY))
 	}
@@ -82,7 +80,7 @@ class GlobalSharedPreferencesTest {
 	 */
 	@Test
 	fun testPutFloatWithoutCommit() {
-		GlobalSharedPreferences.set(EXISTING_FLOAT_KEY, EXISTING_FLOAT_VALUE)
+		GlobalSharedPreferences.Editor.set(EXISTING_FLOAT_KEY, EXISTING_FLOAT_VALUE)
 
 		assertTrue(sharedPreferences.uncommittedPreferenceMap.contains(EXISTING_FLOAT_KEY))
 	}
@@ -93,7 +91,7 @@ class GlobalSharedPreferencesTest {
 	 */
 	@Test
 	fun testPutBooleanWithoutCommit() {
-		GlobalSharedPreferences.set(EXISTING_BOOLEAN_KEY, EXISTING_BOOLEAN_VALUE)
+		GlobalSharedPreferences.Editor.set(EXISTING_BOOLEAN_KEY, EXISTING_BOOLEAN_VALUE)
 
 		assertTrue(sharedPreferences.uncommittedPreferenceMap.contains(EXISTING_BOOLEAN_KEY))
 	}
@@ -104,7 +102,7 @@ class GlobalSharedPreferencesTest {
 	 */
 	@Test
 	fun testPutStringSetWithoutCommit() {
-		GlobalSharedPreferences.set(EXISTING_STRING_SET_KEY, EXISTING_STRING_SET_VALUE)
+		GlobalSharedPreferences.Editor.set(EXISTING_STRING_SET_KEY, EXISTING_STRING_SET_VALUE)
 
 		assertTrue(sharedPreferences.uncommittedPreferenceMap.contains(EXISTING_STRING_SET_KEY))
 	}
@@ -115,7 +113,7 @@ class GlobalSharedPreferencesTest {
 	 */
 	@Test
 	fun testPutAnySuccessWithoutCommit() {
-		GlobalSharedPreferences.set(EXISTING_ANY_SUCCESS_KEY, EXISTING_ANY_SUCCESS_VALUE)
+		GlobalSharedPreferences.Editor.set(EXISTING_ANY_SUCCESS_KEY, EXISTING_ANY_SUCCESS_VALUE)
 
 		assertTrue(sharedPreferences.uncommittedPreferenceMap.contains(EXISTING_ANY_SUCCESS_KEY))
 	}
@@ -127,7 +125,7 @@ class GlobalSharedPreferencesTest {
 	@Test
 	fun testPutAnyFailureWithoutCommit() {
 		try {
-			GlobalSharedPreferences.set(EXISTING_ANY_FAILURE_KEY, EXISTING_ANY_FAILURE_VALUE)
+			GlobalSharedPreferences.Editor.set(EXISTING_ANY_FAILURE_KEY, EXISTING_ANY_FAILURE_VALUE)
 		} catch (e: Exception) {
 			assertTrue(e is UnsupportedOperationException)
 		}
@@ -141,8 +139,7 @@ class GlobalSharedPreferencesTest {
 	@Test
 	fun testCommit() {
 		with(GlobalSharedPreferences) {
-
-			set(CONTAINS_TEST_KEY, CONTAINS_TEST_VALUE)
+			GlobalSharedPreferences.Editor.set(CONTAINS_TEST_KEY, CONTAINS_TEST_VALUE)
 				.set(TEST_REMOVE_KEY, TEST_REMOVE_VALUE)
 				.set(EXISTING_STRING_KEY, EXISTING_STRING_VALUE)
 				.set(EXISTING_LONG_KEY, EXISTING_LONG_VALUE)
@@ -169,7 +166,7 @@ class GlobalSharedPreferencesTest {
 	@Test
 	fun testGetString() {
 		with(GlobalSharedPreferences) {
-			commit(EXISTING_STRING_KEY, EXISTING_STRING_VALUE)
+			GlobalSharedPreferences.Editor.commit(EXISTING_STRING_KEY, EXISTING_STRING_VALUE)
 
 			assertSame(getString(EXISTING_STRING_KEY), EXISTING_STRING_VALUE)
 
@@ -186,9 +183,10 @@ class GlobalSharedPreferencesTest {
 	 */
 	@Test
 	fun testGetInt() {
-		with(GlobalSharedPreferences) {
-			commit(EXISTING_INT_KEY, EXISTING_INT_VALUE)
 
+		GlobalSharedPreferences.Editor.commit(EXISTING_INT_KEY, EXISTING_INT_VALUE)
+
+		with(GlobalSharedPreferences) {
 			assertTrue(getInt(EXISTING_INT_KEY) == EXISTING_INT_VALUE)
 
 			assertTrue(
@@ -205,7 +203,7 @@ class GlobalSharedPreferencesTest {
 	@Test
 	fun testGetLong() {
 		with(GlobalSharedPreferences) {
-			commit(EXISTING_LONG_KEY, EXISTING_LONG_VALUE)
+			GlobalSharedPreferences.Editor.commit(EXISTING_LONG_KEY, EXISTING_LONG_VALUE)
 
 			assertTrue(getLong(EXISTING_LONG_KEY) == EXISTING_LONG_VALUE)
 
@@ -222,9 +220,8 @@ class GlobalSharedPreferencesTest {
 	 */
 	@Test
 	fun testGetFloat() {
+		GlobalSharedPreferences.Editor.commit(EXISTING_FLOAT_KEY, EXISTING_FLOAT_VALUE)
 		with(GlobalSharedPreferences) {
-			commit(EXISTING_FLOAT_KEY, EXISTING_FLOAT_VALUE)
-
 			assertTrue(getFloat(EXISTING_FLOAT_KEY) == EXISTING_FLOAT_VALUE)
 
 			assertTrue(
@@ -241,7 +238,7 @@ class GlobalSharedPreferencesTest {
 	@Test
 	fun testGetBoolean() {
 		with(GlobalSharedPreferences) {
-			commit(EXISTING_BOOLEAN_KEY, EXISTING_BOOLEAN_VALUE)
+			GlobalSharedPreferences.Editor.commit(EXISTING_BOOLEAN_KEY, EXISTING_BOOLEAN_VALUE)
 
 			assertSame(getBoolean(EXISTING_BOOLEAN_KEY), EXISTING_BOOLEAN_VALUE)
 
@@ -259,7 +256,10 @@ class GlobalSharedPreferencesTest {
 	@Test
 	fun testGetStringSet() {
 		with(GlobalSharedPreferences) {
-			commit(EXISTING_STRING_SET_KEY, EXISTING_STRING_SET_VALUE)
+			GlobalSharedPreferences.Editor.commit(
+				EXISTING_STRING_SET_KEY,
+				EXISTING_STRING_SET_VALUE
+			)
 
 			assertTrue(getStringSet(EXISTING_STRING_SET_KEY) == EXISTING_STRING_SET_VALUE)
 
@@ -276,9 +276,8 @@ class GlobalSharedPreferencesTest {
 	 */
 	@Test
 	fun testGetAnySuccess() {
+		GlobalSharedPreferences.Editor.commit(EXISTING_ANY_SUCCESS_KEY, EXISTING_ANY_SUCCESS_VALUE)
 		with(GlobalSharedPreferences) {
-			commit(EXISTING_ANY_SUCCESS_KEY, EXISTING_ANY_SUCCESS_VALUE)
-
 			assertTrue(
 				get(EXISTING_ANY_SUCCESS_KEY, NON_EXISTING_ANY_DEFAULT_VALUE) ==
 						EXISTING_ANY_SUCCESS_VALUE
@@ -311,9 +310,9 @@ class GlobalSharedPreferencesTest {
 	@Test
 	fun testRemove() {
 		with(GlobalSharedPreferences) {
-			commit(TEST_REMOVE_KEY, TEST_REMOVE_VALUE)
+			GlobalSharedPreferences.Editor.commit(TEST_REMOVE_KEY, TEST_REMOVE_VALUE)
 
-			removeAndCommit(TEST_REMOVE_KEY)
+			GlobalSharedPreferences.Editor.remove(TEST_REMOVE_KEY).commit()
 
 			assertFalse(contains(TEST_REMOVE_KEY))
 		}
@@ -330,10 +329,11 @@ class GlobalSharedPreferencesTest {
 
 			assertTrue(contains(EXISTING_PROPERTY_DELEGATION_TEST_KEY))
 
-
 			assertTrue(
-				get(EXISTING_PROPERTY_DELEGATION_TEST_KEY, NON_EXISTING_PROPERTY_DELEGATION_DEFAULT_VALUE) ==
-						PROPERTY_DELEGATION_TEST_VALUE
+				get(
+					EXISTING_PROPERTY_DELEGATION_TEST_KEY,
+					NON_EXISTING_PROPERTY_DELEGATION_DEFAULT_VALUE
+				) == PROPERTY_DELEGATION_TEST_VALUE
 			)
 		}
 	}
@@ -345,7 +345,10 @@ class GlobalSharedPreferencesTest {
 	fun testPropertyDelegationGet() {
 
 		with(GlobalSharedPreferences) {
-			commit(EXISTING_PROPERTY_DELEGATION_TEST_KEY, PROPERTY_DELEGATION_TEST_VALUE)
+			GlobalSharedPreferences.Editor.commit(
+				EXISTING_PROPERTY_DELEGATION_TEST_KEY,
+				PROPERTY_DELEGATION_TEST_VALUE
+			)
 
 			assertTrue(propertyDelegation == PROPERTY_DELEGATION_TEST_VALUE)
 		}
