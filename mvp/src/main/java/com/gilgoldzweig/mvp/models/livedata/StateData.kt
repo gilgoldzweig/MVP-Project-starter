@@ -7,20 +7,21 @@ package com.gilgoldzweig.mvp.models.livedata
  * */
 class StateData<T> {
 
-    var status: DataStatus
-        private set
+    var status: DataStatus = DataStatus.CREATED
 
     var data: T? = null
-        private set
 
     var error: Throwable? = null
-        private set
 
-    init {
-        status = DataStatus.CREATED
-        data = null
-        error = null
-    }
+	/**
+	 * Setting the status to [DataStatus.CREATED]
+	 */
+	fun created(): StateData<T> {
+		status = DataStatus.CREATED
+		data = null
+		error = null
+		return this
+	}
 
 	/**
 	 * Setting the status to [DataStatus.LOADING]
